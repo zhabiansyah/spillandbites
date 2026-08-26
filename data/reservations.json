@@ -1,0 +1,38 @@
+[
+  {
+    "id": "rsv-001",
+    "name": "Bagus Ramadhan",
+    "phone": "081234567891",
+    "branch": "Jakarta — Kemang",
+    "date": "2026-08-25",
+    "time": "19:00",
+    "guests": 6,
+    "notes": "Meja dekat jendela kalau bisa.",
+    "status": "Dikonfirmasi",
+    "createdAt": "2026-08-19T08:00:00.000Z"
+  },
+  {
+    "id": "rsv-002",
+    "name": "Citra Ayu",
+    "phone": "081234567892",
+    "branch": "Bandung — Dago",
+    "date": "2026-08-23",
+    "time": "12:30",
+    "guests": 3,
+    "notes": "",
+    "status": "Dikonfirmasi",
+    "createdAt": "2026-08-18T15:20:00.000Z"
+  },
+  {
+    "id": "rsv-1787460922558-5mv1e",
+    "name": "Budi Santoso",
+    "phone": "081298765432",
+    "branch": "Bali — Seminyak",
+    "date": "2026-09-05",
+    "time": "18:30",
+    "guests": 4,
+    "notes": "",
+    "status": "Dikonfirmasi",
+    "createdAt": "2026-08-23T04:55:22.558Z"
+  }
+]

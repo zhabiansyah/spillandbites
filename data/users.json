@@ -1,0 +1,38 @@
+[
+  {
+    "id": "usr-001",
+    "name": "Rina Wijaya",
+    "email": "rina.w@example.com",
+    "role": "CUSTOMER",
+    "points": 1250,
+    "status": "Aktif",
+    "joinedAt": "2026-03-14T00:00:00.000Z"
+  },
+  {
+    "id": "usr-002",
+    "name": "Admin Kemang",
+    "email": "admin@spillandbites.com",
+    "role": "ADMIN",
+    "points": 0,
+    "status": "Aktif",
+    "joinedAt": "2026-01-05T00:00:00.000Z"
+  },
+  {
+    "id": "usr-003",
+    "name": "Fajar Nugroho",
+    "email": "fajar.n@example.com",
+    "role": "CUSTOMER",
+    "points": 420,
+    "status": "Aktif",
+    "joinedAt": "2026-05-02T00:00:00.000Z"
+  },
+  {
+    "id": "usr-004",
+    "name": "Salsabila Putri",
+    "email": "salsa.p@example.com",
+    "role": "CUSTOMER",
+    "points": 3100,
+    "status": "Diblokir",
+    "joinedAt": "2026-02-20T00:00:00.000Z"
+  }
+]

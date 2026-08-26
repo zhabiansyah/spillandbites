@@ -1,0 +1,22 @@
+[
+  {
+    "id": "art-001",
+    "title": "5 Fakta Menarik di Balik Saus Signature Spill & Bites",
+    "excerpt": "Dari mana asal resep saus andalan kami? Simak ceritanya di sini.",
+    "content": "Saus signature Spill & Bites diracik dari kombinasi rempah Nusantara dan sentuhan modern...",
+    "status": "Published",
+    "author": "Tim Spill & Bites",
+    "createdAt": "2026-08-10T09:00:00.000Z",
+    "publishedAt": "2026-08-10T09:00:00.000Z"
+  },
+  {
+    "id": "art-002",
+    "title": "Cara Spill & Bites Menjaga Standar Halal di Setiap Cabang",
+    "excerpt": "Komitmen kami terhadap sertifikasi halal MUI di 6 cabang.",
+    "content": "Setiap cabang Spill & Bites menjalani audit halal berkala...",
+    "status": "Draft",
+    "author": "Tim Spill & Bites",
+    "createdAt": "2026-08-18T09:00:00.000Z",
+    "publishedAt": "2026-08-24T02:48:44.274Z"
+  }
+]

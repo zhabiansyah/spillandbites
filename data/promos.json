@@ -1,0 +1,29 @@
+[
+  {
+    "id": "promo-001",
+    "title": "Diskon 25% Student Promo",
+    "description": "Tunjukkan kartu pelajar/mahasiswa aktif dan nikmati potongan 25% untuk semua menu, Senin–Jumat.",
+    "code": "SPILLSTUDENT",
+    "discountPercent": 25,
+    "validUntil": "2026-12-31",
+    "active": true
+  },
+  {
+    "id": "promo-002",
+    "title": "Paket Berdua Hemat 20%",
+    "description": "Pesan 2 menu ayam + 2 minuman dalam satu transaksi, otomatis dapat potongan 20%.",
+    "code": "BERDUA20",
+    "discountPercent": 20,
+    "validUntil": "2026-10-31",
+    "active": true
+  },
+  {
+    "id": "promo-003",
+    "title": "Jam Ngantor Diskon 10%",
+    "description": "Order antara pukul 11.00–14.00 WIB, potongan langsung 10% untuk take away.",
+    "code": "NGANTOR10",
+    "discountPercent": 10,
+    "validUntil": "2026-09-15",
+    "active": false
+  }
+]

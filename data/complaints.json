@@ -1,0 +1,35 @@
+[
+  {
+    "id": "cmp-001",
+    "orderNumber": "SPB-20260810-041",
+    "name": "Rina Wijaya",
+    "email": "rina.w@example.com",
+    "message": "Pesanan Burger Mozzarella Drench datang tanpa saus tambahan yang saya pesan.",
+    "status": "Baru",
+    "createdAt": "2026-08-18T09:12:00.000Z",
+    "resolvedAt": null,
+    "handledBy": null
+  },
+  {
+    "id": "cmp-002",
+    "orderNumber": "SPB-20260812-118",
+    "name": "Fajar Nugroho",
+    "email": "fajar.n@example.com",
+    "message": "Estimasi pengiriman GoFood meleset jauh, ayam sudah dingin saat sampai.",
+    "status": "Selesai",
+    "createdAt": "2026-08-19T14:30:00.000Z",
+    "resolvedAt": "2026-08-24T02:48:29.018Z",
+    "handledBy": "Admin Kemang"
+  },
+  {
+    "id": "cmp-003",
+    "orderNumber": "SPB-20260805-076",
+    "name": "Salsabila Putri",
+    "email": "salsa.p@example.com",
+    "message": "Poin reward dari transaksi minggu lalu belum masuk ke akun saya.",
+    "status": "Selesai",
+    "createdAt": "2026-08-15T11:05:00.000Z",
+    "resolvedAt": "2026-08-16T10:00:00.000Z",
+    "handledBy": "Admin Dago"
+  }
+]

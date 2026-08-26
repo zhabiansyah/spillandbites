@@ -1,0 +1,26 @@
+[
+  {
+    "id": "bday-001",
+    "name": "Ibu Ani (untuk anak: Kirana)",
+    "phone": "081234567893",
+    "branch": "Jakarta — Kemang",
+    "date": "2026-09-02",
+    "package": "Spill Kids 1",
+    "kidsCount": 10,
+    "notes": "Tema warna pink, minta dekorasi balon.",
+    "status": "Menunggu Konfirmasi",
+    "createdAt": "2026-08-19T10:00:00.000Z"
+  },
+  {
+    "id": "bday-002",
+    "name": "Bapak Doni",
+    "phone": "081234567894",
+    "branch": "Surabaya — Gubeng",
+    "date": "2026-08-30",
+    "package": "Spill Kids 2",
+    "kidsCount": 15,
+    "notes": "",
+    "status": "Dikonfirmasi",
+    "createdAt": "2026-08-17T13:00:00.000Z"
+  }
+]
