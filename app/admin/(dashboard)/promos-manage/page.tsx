@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import type { Promo } from "@prisma/client";
 
-// Helper aman untuk format tanggal (mencegah error NaN/undefined)
 function formatDate(dateValue: string | Date | undefined) {
   if (!dateValue) return "—";
   const d = new Date(dateValue);
