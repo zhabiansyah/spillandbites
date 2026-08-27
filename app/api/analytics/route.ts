@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { readTable } from "@/lib/db";
-import type { Complaint } from "@/app/api/complaints/route";
+import { db } from "@/lib/db";
 
 /**
  * Data revenue & best-seller di bawah ini MOCK — belum ada model
@@ -33,7 +32,9 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const complaints = await readTable<Complaint>("complaints");
+  // ✅ MENGGUNAKAN PRISMA (BUKAN readTable LAGI)
+  const complaints = await db.complaint.findMany();
+  
   const total = complaints.length;
   const resolved = complaints.filter((c) => c.status === "Selesai");
   const resolvedCount = resolved.length;
