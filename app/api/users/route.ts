@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db"; // <-- Ubah import ini untuk memanggil Prisma
+import { db } from "@/lib/db"; // ✅ Ubah ke import { db } (pakai kurung kurawal)
 import { getSession } from "@/lib/auth";
-
-// Catatan: Tipe AppUser bisa dihapus jika Anda sudah menggunakan Prisma, 
-// karena Prisma secara otomatis membuatkan tipe (type) dari schema.prisma Anda.
 
 function requireSuperadmin() {
   const session = getSession();
@@ -18,8 +15,8 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   
-  // PRISMA: Mengambil semua data user dari database
-  const users = await prisma.user.findMany();
+  // ✅ Gunakan db.user, bukan prisma.user
+  const users = await db.user.findMany();
   
   return NextResponse.json(users);
 }
@@ -39,16 +36,14 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // PRISMA: Menyimpan user baru langsung ke database
-  const newUser = await prisma.user.create({
+  // ✅ Gunakan db.user, bukan prisma.user
+  const newUser = await db.user.create({
     data: {
       name,
       email,
       role: role || "ADMIN",
       points: 0,
       status: "Aktif",
-      // Catatan: 'id' dan 'joinedAt' tidak perlu diisi manual 
-      // jika di file schema.prisma Anda sudah menggunakan @default(cuid()) dan @default(now())
     },
   });
   
