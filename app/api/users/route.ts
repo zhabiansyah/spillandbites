@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db"; // ✅ Ubah ke import { db } (pakai kurung kurawal)
+import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
 function requireSuperadmin() {
@@ -10,42 +10,21 @@ function requireSuperadmin() {
   return session;
 }
 
-export async function GET() {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   if (!requireSuperadmin()) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  
-  // ✅ Gunakan db.user, bukan prisma.user
-  const users = await db.user.findMany();
-  
-  return NextResponse.json(users);
-}
 
-export async function POST(req: NextRequest) {
-  if (!requireSuperadmin()) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  
-  const body = await req.json();
-  const { name, email, role } = body;
-  
-  if (!name || !email) {
-    return NextResponse.json(
-      { error: "Nama dan email wajib diisi." },
-      { status: 400 }
-    );
-  }
+  try {
+    await db.user.delete({
+      where: { id: params.id },
+    });
 
-  // ✅ Gunakan db.user, bukan prisma.user
-  const newUser = await db.user.create({
-    data: {
-      name,
-      email,
-      role: role || "ADMIN",
-      points: 0,
-      status: "Aktif",
-    },
-  });
-  
-  return NextResponse.json(newUser, { status: 201 });
+    return NextResponse.json({ message: "User berhasil dihapus" });
+  } catch (error) {
+    return NextResponse.json({ error: "User tidak ditemukan" }, { status: 404 });
+  }
 }

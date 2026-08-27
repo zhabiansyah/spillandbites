@@ -2,7 +2,18 @@
 
 import { useEffect, useState } from "react";
 import StatusBadge from "@/components/admin/StatusBadge";
-import type { Complaint } from "@/app/api/complaints/route";
+
+export interface Complaint {
+  id: string;
+  orderNumber?: string | null;
+  name: string;
+  email?: string | null;
+  message: string;
+  createdAt: string;
+  resolvedAt?: string | null;
+  handledBy?: string | null;
+  status: "Baru" | "Diproses" | "Selesai" | string;
+}
 
 const STATUSES: Complaint["status"][] = ["Baru", "Diproses", "Selesai"];
 
@@ -26,7 +37,9 @@ export default function ComplaintsPage() {
   const load = async () => {
     setLoading(true);
     const res = await fetch("/api/complaints");
-    setItems(await res.json());
+    if (res.ok) {
+      setItems(await res.json());
+    }
     setLoading(false);
   };
 
@@ -98,11 +111,11 @@ export default function ComplaintsPage() {
               {filtered.map((c) => (
                 <tr key={c.id} className="border-b border-black/5 last:border-0">
                   <td className="px-5 py-4 font-mono text-xs text-black/70">
-                    {c.orderNumber}
+                    {c.orderNumber || "—"}
                   </td>
                   <td className="px-5 py-4">
                     <p className="font-semibold text-black">{c.name}</p>
-                    <p className="text-xs text-black/50">{c.email}</p>
+                    <p className="text-xs text-black/50">{c.email || "—"}</p>
                   </td>
                   <td className="max-w-xs px-5 py-4 text-black/80">
                     {c.message}
@@ -111,7 +124,7 @@ export default function ComplaintsPage() {
                     {formatDate(c.createdAt)}
                   </td>
                   <td className="px-5 py-4 text-xs text-black/60">
-                    {formatDate(c.resolvedAt)}
+                    {formatDate(c.resolvedAt || null)}
                     {c.handledBy && (
                       <p className="text-black/40">oleh {c.handledBy}</p>
                     )}
