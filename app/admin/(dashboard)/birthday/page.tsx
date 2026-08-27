@@ -2,7 +2,19 @@
 
 import { useEffect, useState } from "react";
 import StatusBadge from "@/components/admin/StatusBadge";
-import { BirthdayBooking } from "@prisma/client";
+
+// Tipe data manual agar tidak tergantung ekspor Prisma Client
+export interface BirthdayBooking {
+  id: string;
+  name: string;
+  phone: string;
+  branch: string;
+  date: string;
+  package: string;
+  kidsCount: number;
+  notes?: string | null;
+  status: "Menunggu Konfirmasi" | "Dikonfirmasi" | "Dibatalkan" | string;
+}
 
 const STATUSES: BirthdayBooking["status"][] = [
   "Menunggu Konfirmasi",
@@ -18,7 +30,9 @@ export default function BirthdayPage() {
   const load = async () => {
     setLoading(true);
     const res = await fetch("/api/birthday");
-    setItems(await res.json());
+    if (res.ok) {
+      setItems(await res.json());
+    }
     setLoading(false);
   };
 
