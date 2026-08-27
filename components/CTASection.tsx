@@ -7,7 +7,6 @@ export default function CTASection() {
   return (
     <section
       id="cta"
-      // Ubah py-32 menjadi pt-20 pb-0 agar tidak ada jarak biru di bawah RunningText
       className="relative flex min-h-[80vh] flex-col items-center justify-between overflow-hidden bg-primary pt-20 pb-0 text-center"
     >
       {/* animated blob background */}

@@ -1,52 +1,62 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readTable, writeTable } from "@/lib/db";
-import type { Article } from "../route";
+import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+function requireSuperadmin() {
   const session = getSession();
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session || session.role !== "superadmin") {
+    return null;
   }
-
-  const body = await req.json();
-  const items = await readTable<Article>("articles");
-  const idx = items.findIndex((a) => a.id === params.id);
-  if (idx === -1) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
-  const current = items[idx];
-  const updated: Article = {
-    ...current,
-    title: body.title ?? current.title,
-    excerpt: body.excerpt ?? current.excerpt,
-    content: body.content ?? current.content,
-    status: body.status ?? current.status,
-    publishedAt:
-      body.status === "Published" && current.status !== "Published"
-        ? new Date().toISOString()
-        : current.publishedAt,
-  };
-  items[idx] = updated;
-  await writeTable("articles", items);
-  return NextResponse.json(updated);
+  return session;
 }
 
-export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const session = getSession();
-  if (!session) {
+export async function GET() {
+  if (!requireSuperadmin()) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  
+  // Mengambil semua data pengguna
+  const users = await db.user.findMany({
+    orderBy: { joinedAt: 'desc' }, // Mengurutkan dari yang terbaru bergabung
+  });
+  
+  return NextResponse.json(users);
+}
 
-  const items = await readTable<Article>("articles");
-  const filtered = items.filter((a) => a.id !== params.id);
-  await writeTable("articles", filtered);
-  return NextResponse.json({ ok: true });
+export async function POST(req: NextRequest) {
+  if (!requireSuperadmin()) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  
+  const body = await req.json();
+  const { name, email, role } = body;
+  
+  if (!name || !email) {
+    return NextResponse.json(
+      { error: "Nama dan email wajib diisi." },
+      { status: 400 }
+    );
+  }
+
+  // Cek apakah email sudah terdaftar (karena kita set @unique di skema)
+  const existingUser = await db.user.findUnique({ where: { email } });
+  if (existingUser) {
+    return NextResponse.json(
+      { error: "Email sudah terdaftar." },
+      { status: 400 }
+    );
+  }
+
+  // Membuat user baru di database
+  const newUser = await db.user.create({
+    data: {
+      name,
+      email,
+      role: role || "ADMIN",
+      points: 0,
+      status: "Aktif",
+    },
+  });
+  
+  return NextResponse.json(newUser, { status: 201 });
 }

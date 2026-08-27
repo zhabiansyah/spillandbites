@@ -13,7 +13,7 @@ const STATS = [
     showStars: true,
   },
   { label: "Porsi Terjual", value: 50000, suffix: "+", decimals: 0 },
-  { label: "Resto Aktif", value: 6, suffix: "", decimals: 0 },
+  { label: "Cabang", value: 6, suffix: "", decimals: 0 },
 ];
 
 function CountUp({

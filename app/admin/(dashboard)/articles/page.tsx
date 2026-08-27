@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import StatusBadge from "@/components/admin/StatusBadge";
-import type { Article } from "@/app/api/articles/route";
+import type { Article } from "@prisma/client"; // ✅ Menggunakan tipe data otomatis dari Prisma
 
-function formatDate(iso: string | null) {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("id-ID", {
+function formatDate(val: string | Date | null) {
+  if (!val) return "—";
+  return new Date(val).toLocaleDateString("id-ID", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -21,9 +21,23 @@ export default function ArticlesPage() {
 
   const load = async () => {
     setLoading(true);
-    const res = await fetch("/api/articles");
-    setItems(await res.json());
-    setLoading(false);
+    try {
+      const res = await fetch("/api/articles");
+      const data = await res.json();
+      
+      // ✅ Perlindungan ekstra: Pastikan data benar-benar Array sebelum dimasukkan ke state
+      if (Array.isArray(data)) {
+        setItems(data);
+      } else {
+        console.error("Gagal memuat data:", data);
+        setItems([]);
+      }
+    } catch (error) {
+      console.error("Error fetch:", error);
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {

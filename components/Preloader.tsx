@@ -8,7 +8,7 @@ export default function Preloader({ progress }: { progress: number }) {
       <motion.div
         exit={{ y: "-100%" }}
         transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] }}
-        className="fixed inset-0 z-[90] flex flex-col items-center justify-center bg-spill-blue-deep"
+        className="fixed inset-0 z-[90] flex flex-col items-center justify-center primary bg-primary  "
       >
         <div className="overflow-hidden">
           <motion.span
@@ -41,7 +41,7 @@ export default function Preloader({ progress }: { progress: number }) {
         </div>
 
         <p className="mt-6 text-xs uppercase tracking-[0.3em] text-cream/40">
-          Memanaskan penggorengan
+          WELCOME TO SPILL
         </p>
       </motion.div>
     </AnimatePresence>

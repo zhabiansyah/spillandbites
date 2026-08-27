@@ -1,18 +1,16 @@
 import Link from "next/link";
-import { readTable } from "@/lib/db";
+import { db } from "@/lib/db"; // Ganti readTable menjadi db
 import { getSession } from "@/lib/auth";
-import type { Complaint } from "@/app/api/complaints/route";
-import type { Reservation } from "@/app/api/reservations/route";
-import type { BirthdayBooking } from "@/app/api/birthday/route";
-import type { Article } from "@/app/api/articles/route";
 
 export default async function AdminDashboardPage() {
   const session = getSession();
+  
+  // Memanggil data langsung ke database PostgreSQL menggunakan Prisma
   const [complaints, reservations, birthday, articles] = await Promise.all([
-    readTable<Complaint>("complaints"),
-    readTable<Reservation>("reservations"),
-    readTable<BirthdayBooking>("birthday"),
-    readTable<Article>("articles"),
+    db.complaint.findMany(),
+    db.reservation.findMany(),
+    db.birthdayBooking.findMany(),
+    db.article.findMany(),
   ]);
 
   const openComplaints = complaints.filter((c) => c.status !== "Selesai").length;

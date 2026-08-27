@@ -1,22 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readTable, writeTable, generateId } from "@/lib/db";
-
-export type BirthdayBooking = {
-  id: string;
-  name: string;
-  phone: string;
-  branch: string;
-  date: string;
-  package: "Spill Kids 1" | "Spill Kids 2";
-  kidsCount: number;
-  notes: string;
-  status: "Menunggu Konfirmasi" | "Dikonfirmasi" | "Dibatalkan";
-  createdAt: string;
-};
+import { db } from "@/lib/db";
 
 export async function GET() {
-  const items = await readTable<BirthdayBooking>("birthday");
-  items.sort((a, b) => (a.date < b.date ? -1 : 1));
+  const items = await db.birthdayBooking.findMany({
+    orderBy: { date: 'asc' },
+  });
   return NextResponse.json(items);
 }
 
@@ -31,21 +19,18 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const items = await readTable<BirthdayBooking>("birthday");
-  const newItem: BirthdayBooking = {
-    id: generateId("bday"),
-    name,
-    phone,
-    branch,
-    date,
-    package: pkg,
-    kidsCount: Number(kidsCount),
-    notes: notes || "",
-    status: "Menunggu Konfirmasi",
-    createdAt: new Date().toISOString(),
-  };
-  items.push(newItem);
-  await writeTable("birthday", items);
+  const newItem = await db.birthdayBooking.create({
+    data: {
+      name,
+      phone,
+      branch,
+      date,
+      package: pkg,
+      kidsCount: Number(kidsCount),
+      notes: notes || "",
+      status: "Menunggu Konfirmasi",
+    },
+  });
 
   return NextResponse.json(newItem, { status: 201 });
 }

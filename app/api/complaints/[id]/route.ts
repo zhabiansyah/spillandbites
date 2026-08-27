@@ -1,31 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readTable, writeTable } from "@/lib/db";
-import type { Complaint } from "../route";
-import { getSession } from "@/lib/auth";
+import { db } from "@/lib/db";
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const session = getSession();
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+export async function GET() {
+  // Mengambil data dan langsung diurutkan dari yang paling baru (descending)
+  const complaints = await db.complaint.findMany({
+    orderBy: { createdAt: 'desc' },
+  });
+  return NextResponse.json(complaints);
+}
 
+export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { status } = body as { status: Complaint["status"] };
+  const { orderNumber, name, email, message } = body;
 
-  const complaints = await readTable<Complaint>("complaints");
-  const idx = complaints.findIndex((c) => c.id === params.id);
-  if (idx === -1) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!name || !email || !message) {
+    return NextResponse.json(
+      { error: "Nama, email, dan pesan wajib diisi." },
+      { status: 400 }
+    );
   }
 
-  complaints[idx].status = status;
-  complaints[idx].handledBy = session.name;
-  complaints[idx].resolvedAt =
-    status === "Selesai" ? new Date().toISOString() : complaints[idx].resolvedAt;
+  const newComplaint = await db.complaint.create({
+    data: {
+      orderNumber: orderNumber || "-",
+      name,
+      email,
+      message,
+      status: "Baru",
+    },
+  });
 
-  await writeTable("complaints", complaints);
-  return NextResponse.json(complaints[idx]);
+  return NextResponse.json(newComplaint, { status: 201 });
 }

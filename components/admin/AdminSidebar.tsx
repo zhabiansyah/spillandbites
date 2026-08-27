@@ -85,7 +85,7 @@ export default function AdminSidebar({ session }: { session: Session }) {
       </nav>
 
       <div className="border-t border-black/5 p-4">
-        <p className="px-2 text-sm font-semibold text-black">{session.name}</p>
+        <p className="px-2 text-sm font-semibold text-black">Admin</p>
         <p className="px-2 text-xs text-black/50">{session.email}</p>
         <button
           onClick={logout}

@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl= env("DIRECT_URL")
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  SUPERADMIN
+}
+
+model User {
+  id       String   @id @default(cuid())
+  name     String
+  email    String   @unique
+  role     String   @default("ADMIN")
+  points   Int      @default(0)
+  status   String   @default("Aktif")
+  joinedAt DateTime @default(now())
+  password      String?
+}
+
+model Complaint {
+  id          String    @id @default(cuid())
+  orderNumber String
+  name        String
+  email       String
+  message     String
+  status      String    @default("Baru")
+  handledBy   String?
+  createdAt   DateTime  @default(now())
+  resolvedAt  DateTime?
+}
+
+model Reservation {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  branch    String
+  date      String
+  time      String
+  guests    Int
+  notes     String
+  status    String   @default("Menunggu Konfirmasi")
+  createdAt DateTime @default(now())
+}
+
+model BirthdayBooking {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  branch    String
+  date      String
+  package   String
+  kidsCount Int
+  notes     String
+  status    String   @default("Menunggu Konfirmasi")
+  createdAt DateTime @default(now())
+}
+
+model Article {
+  id          String    @id @default(cuid())
+  title       String
+  excerpt     String
+  content     String
+  imageUrl    String?
+  status      String    @default("Draft")
+  author      String
+  createdAt   DateTime  @default(now())
+  publishedAt DateTime?
+}
+
+model Promo {
+  id              String  @id @default(cuid())
+  title           String
+  description     String
+  code            String
+  discountPercent Int
+  validUntil      String
+  active          Boolean @default(true)
+}
