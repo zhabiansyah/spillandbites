@@ -1,212 +1,246 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Promo } from "@/app/api/promos/route";
+import type { Promo } from "@prisma/client";
+
+// Helper aman untuk format tanggal (mencegah error NaN/undefined)
+function formatDate(dateValue: string | Date | undefined) {
+  if (!dateValue) return "—";
+  const d = new Date(dateValue);
+  if (isNaN(d.getTime())) return "—";
+  return d.toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 export default function PromosManagePage() {
-  const [items, setItems] = useState<Promo[]>([]);
+  const [promos, setPromos] = useState<Promo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [busyId, setBusyId] = useState<string | null>(null);
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    code: "",
-    discountPercent: "",
-    validUntil: "",
-  });
 
-  const load = async () => {
+  // Form state
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [code, setCode] = useState("");
+  const [discountPercent, setDiscountPercent] = useState(0);
+  const [validUntil, setValidUntil] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const loadPromos = async () => {
     setLoading(true);
-    const res = await fetch("/api/promos");
-    setItems(await res.json());
-    setLoading(false);
+    try {
+      const res = await fetch("/api/promos");
+      if (res.ok) {
+        const data = await res.json();
+        setPromos(data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    load();
+    loadPromos();
   }, []);
 
-  const create = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch("/api/promos", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    if (res.ok) {
-      const created = await res.json();
-      setItems((prev) => [...prev, created]);
-      setForm({ title: "", description: "", code: "", discountPercent: "", validUntil: "" });
-      setShowForm(false);
-    } else {
-      alert("Gagal membuat promo. Cek kembali form-nya.");
+    setSubmitting(true);
+    setError("");
+
+    if (!validUntil) {
+      setError("Tanggal berlaku wajib diisi.");
+      setSubmitting(false);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/promos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          description,
+          code,
+          discountPercent,
+          validUntil, // Mengirim string YYYY-MM-DD
+        }),
+      });
+
+      if (res.ok) {
+        setTitle("");
+        setDescription("");
+        setCode("");
+        setDiscountPercent(0);
+        setValidUntil("");
+        loadPromos();
+      } else {
+        const data = await res.json();
+        setError(data.error || "Gagal membuat promo");
+      }
+    } catch (err) {
+      setError("Terjadi kesalahan jaringan.");
+    } finally {
+      setSubmitting(false);
     }
   };
-
-  const toggleActive = async (p: Promo) => {
-    setBusyId(p.id);
-    const res = await fetch(`/api/promos/${p.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ active: !p.active }),
-    });
-    if (res.ok) {
-      const updated = await res.json();
-      setItems((prev) => prev.map((it) => (it.id === p.id ? updated : it)));
-    }
-    setBusyId(null);
-  };
-
-  const remove = async (id: string) => {
-    if (!confirm("Hapus promo ini?")) return;
-    setBusyId(id);
-    const res = await fetch(`/api/promos/${id}`, { method: "DELETE" });
-    if (res.ok) setItems((prev) => prev.filter((p) => p.id !== id));
-    setBusyId(null);
-  };
-
-  const isExpired = (validUntil: string) =>
-    new Date(validUntil).getTime() < Date.now();
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-2xl font-extrabold text-orange-600">
-            Manajemen Promo &amp; Kampanye
-          </h1>
-          <p className="mt-1 text-sm text-black">
-            Buat promo baru dan tentukan batas waktu kadaluarsa (validUntil).
-            Khusus SuperAdmin.
-          </p>
-        </div>
-        <button
-          onClick={() => setShowForm((s) => !s)}
-          className="rounded-full bg-orange-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-orange-700"
-        >
-          + Promo Baru
-        </button>
-      </div>
+      <h1 className="font-display text-2xl font-extrabold text-orange-600">
+        Kelola Promo
+      </h1>
+      <p className="mt-1 text-sm text-black">
+        Tambah dan atur daftar kode promo yang berlaku.
+      </p>
 
-      {showForm && (
-        <form
-          onSubmit={create}
-          className="mt-6 grid grid-cols-1 gap-3 rounded-2xl border border-black/10 bg-white p-6 sm:grid-cols-2"
-        >
-          <input
-            required
-            placeholder="Judul promo"
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="rounded-lg border border-black/15 px-3 py-2.5 text-sm text-black outline-none focus:border-orange-500 sm:col-span-2"
-          />
-          <textarea
-            placeholder="Deskripsi"
-            rows={2}
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="rounded-lg border border-black/15 px-3 py-2.5 text-sm text-black outline-none focus:border-orange-500 sm:col-span-2"
-          />
-          <input
-            required
-            placeholder="Kode promo (mis. HEMAT20)"
-            value={form.code}
-            onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
-            className="rounded-lg border border-black/15 px-3 py-2.5 text-sm text-black outline-none focus:border-orange-500"
-          />
-          <input
-            type="number"
-            min={1}
-            max={100}
-            placeholder="Diskon (%)"
-            value={form.discountPercent}
-            onChange={(e) => setForm({ ...form, discountPercent: e.target.value })}
-            className="rounded-lg border border-black/15 px-3 py-2.5 text-sm text-black outline-none focus:border-orange-500"
-          />
-          <div className="sm:col-span-2">
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-black/60">
-              Berlaku sampai (validUntil)
+      {/* Form Tambah Promo */}
+      <form
+        onSubmit={handleSubmit}
+        className="mt-6 rounded-2xl border border-black/10 bg-white p-6 shadow-sm"
+      >
+        <h2 className="text-lg font-bold text-black">Tambah Promo Baru</h2>
+
+        {error && (
+          <div className="mt-3 rounded-lg bg-red-50 p-3 text-xs font-semibold text-red-600">
+            {error}
+          </div>
+        )}
+
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label className="block text-xs font-semibold text-black/70">
+              Judul Promo
             </label>
             <input
+              type="text"
               required
-              type="date"
-              value={form.validUntil}
-              onChange={(e) => setForm({ ...form, validUntil: e.target.value })}
-              className="w-full rounded-lg border border-black/15 px-3 py-2.5 text-sm text-black outline-none focus:border-orange-500"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-black/15 px-3 py-2 text-sm outline-none focus:border-orange-500"
+              placeholder="Diskon Buka Puasa"
             />
           </div>
-          <button
-            type="submit"
-            className="rounded-lg bg-orange-600 py-2.5 text-sm font-bold text-white hover:bg-orange-700 sm:col-span-2"
-          >
-            Simpan Promo
-          </button>
-        </form>
-      )}
 
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div>
+            <label className="block text-xs font-semibold text-black/70">
+              Kode Promo
+            </label>
+            <input
+              type="text"
+              required
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              className="mt-1 w-full rounded-xl border border-black/15 px-3 py-2 text-sm uppercase outline-none focus:border-orange-500"
+              placeholder="SPILL50"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-black/70">
+              Diskon (%)
+            </label>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              required
+              value={discountPercent}
+              onChange={(e) => setDiscountPercent(Number(e.target.value))}
+              className="mt-1 w-full rounded-xl border border-black/15 px-3 py-2 text-sm outline-none focus:border-orange-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-black/70">
+              Berlaku Sampai
+            </label>
+            <input
+              type="date"
+              required
+              value={validUntil}
+              onChange={(e) => setValidUntil(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-black/15 px-3 py-2 text-sm outline-none focus:border-orange-500"
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-semibold text-black/70">
+              Deskripsi
+            </label>
+            <textarea
+              rows={2}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-black/15 px-3 py-2 text-sm outline-none focus:border-orange-500"
+              placeholder="Keterangan singkat promo..."
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className="mt-4 rounded-xl bg-orange-600 px-5 py-2.5 text-xs font-bold text-white transition-colors hover:bg-orange-700 disabled:opacity-50"
+        >
+          {submitting ? "Menyimpan..." : "Simpan Promo"}
+        </button>
+      </form>
+
+      {/* Tabel Daftar Promo */}
+      <div className="mt-8 overflow-x-auto rounded-2xl border border-black/10 bg-white">
         {loading ? (
-          <p className="text-sm text-black/50">Memuat data...</p>
+          <p className="p-6 text-sm text-black/50">Memuat data promo...</p>
+        ) : promos.length === 0 ? (
+          <p className="p-6 text-sm text-black/50">Belum ada promo aktif.</p>
         ) : (
-          items.map((p) => (
-            <div
-              key={p.id}
-              className="rounded-2xl border border-black/10 bg-white p-6"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="font-display font-bold text-black">
-                  {p.title}
-                </h3>
-                <span
-                  className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold ${
-                    !p.active
-                      ? "bg-gray-100 text-gray-600"
-                      : isExpired(p.validUntil)
-                      ? "bg-red-100 text-red-600"
-                      : "bg-green-100 text-green-700"
-                  }`}
-                >
-                  {!p.active
-                    ? "Nonaktif"
-                    : isExpired(p.validUntil)
-                    ? "Kadaluarsa"
-                    : "Aktif"}
-                </span>
-              </div>
-              <p className="mt-2 text-sm text-black/70">{p.description}</p>
-              <div className="mt-4 flex items-center justify-between text-xs text-black/50">
-                <span className="font-mono font-bold text-orange-600">
-                  {p.code}
-                </span>
-                <span>{p.discountPercent}% off</span>
-              </div>
-              <p className="mt-1 text-xs text-black/50">
-                Berlaku sampai{" "}
-                {new Date(p.validUntil).toLocaleDateString("id-ID", {
-                  day: "2-digit",
-                  month: "long",
-                  year: "numeric",
-                })}
-              </p>
-              <div className="mt-4 flex gap-2">
-                <button
-                  disabled={busyId === p.id}
-                  onClick={() => toggleActive(p)}
-                  className="flex-1 rounded-lg border border-black/15 py-2 text-xs font-semibold text-black hover:bg-black/5 disabled:opacity-50"
-                >
-                  {p.active ? "Nonaktifkan" : "Aktifkan"}
-                </button>
-                <button
-                  disabled={busyId === p.id}
-                  onClick={() => remove(p.id)}
-                  className="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
-                >
-                  Hapus
-                </button>
-              </div>
-            </div>
-          ))
+          <table className="w-full min-w-[640px] text-left text-sm">
+            <thead className="border-b border-black/10 bg-black/[0.02] text-xs uppercase tracking-wide text-black/50">
+              <tr>
+                <th className="px-5 py-3">Kode</th>
+                <th className="px-5 py-3">Judul</th>
+                <th className="px-5 py-3">Diskon</th>
+                <th className="px-5 py-3">Berlaku Sampai</th>
+                <th className="px-5 py-3">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {promos.map((p) => (
+                <tr key={p.id} className="border-b border-black/5 last:border-0">
+                  <td className="px-5 py-4 font-mono font-bold text-orange-600">
+                    {p.code}
+                  </td>
+                  <td className="px-5 py-4">
+                    <p className="font-semibold text-black">{p.title}</p>
+                    {p.description && (
+                      <p className="text-xs text-black/50">{p.description}</p>
+                    )}
+                  </td>
+                  <td className="px-5 py-4 font-semibold text-black">
+                    {p.discountPercent}%
+                  </td>
+                  <td className="px-5 py-4 text-xs text-black/70">
+                    {formatDate(p.validUntil)}
+                  </td>
+                  <td className="px-5 py-4">
+                    <span
+                      className={`inline-block rounded-full px-2.5 py-1 text-[10px] font-bold ${
+                        p.active
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
+                      {p.active ? "Aktif" : "Nonaktif"}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
     </div>
