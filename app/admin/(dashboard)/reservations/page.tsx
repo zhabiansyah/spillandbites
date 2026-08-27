@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import StatusBadge from "@/components/admin/StatusBadge";
-import type { Reservation } from "@/app/api/reservations/route";
+// BENAR: Mengambil tipe data dari Prisma Client
+import type { Reservation } from "@prisma/client";
 
-const STATUSES: Reservation["status"][] = [
+const STATUSES = [
   "Menunggu Konfirmasi",
   "Dikonfirmasi",
   "Dibatalkan",
@@ -26,7 +27,7 @@ export default function ReservationsPage() {
     load();
   }, []);
 
-  const updateStatus = async (id: string, status: Reservation["status"]) => {
+  const updateStatus = async (id: string, status: string) => {
     setUpdatingId(id);
     const res = await fetch(`/api/reservations/${id}`, {
       method: "PATCH",
@@ -89,9 +90,7 @@ export default function ReservationsPage() {
                     <select
                       value={r.status}
                       disabled={updatingId === r.id}
-                      onChange={(e) =>
-                        updateStatus(r.id, e.target.value as Reservation["status"])
-                      }
+                      onChange={(e) => updateStatus(r.id, e.target.value)}
                       className="rounded-lg border border-black/15 px-2 py-1.5 text-xs font-semibold text-black outline-none focus:border-orange-500 disabled:opacity-50"
                     >
                       {STATUSES.map((s) => (
