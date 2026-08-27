@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import StatusBadge from "@/components/admin/StatusBadge";
-import type { BirthdayBooking } from "@/app/api/birthday/route";
+import { BirthdayBooking } from "@prisma/client";
 
 const STATUSES: BirthdayBooking["status"][] = [
   "Menunggu Konfirmasi",
