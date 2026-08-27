@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { AppUser } from "@/app/api/users/route";
+// BENAR: Mengambil tipe data dari Prisma Client
+// Jika di schema.prisma nama modelnya AppUser, gunakan: import type { AppUser } from "@prisma/client";
+import type { User as AppUser } from "@prisma/client";
 
 const ROLES: AppUser["role"][] = ["CUSTOMER", "ADMIN", "SUPERADMIN"];
 
