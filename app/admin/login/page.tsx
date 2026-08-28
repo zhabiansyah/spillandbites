@@ -119,7 +119,6 @@ function LoginForm() {
 
           {/* Testimonial Overlay */}
           <div className="absolute bottom-0 left-0 flex w-full flex-col justify-end bg-gradient-to-t from-black/90 via-black/40 to-transparent p-12">
-            
             {/* Indikator Slider */}
             <div className="mb-6 flex gap-2">
               <div className="h-1.5 w-6 rounded-full bg-white"></div>
@@ -127,23 +126,19 @@ function LoginForm() {
               <div className="h-1.5 w-1.5 rounded-full bg-white/40"></div>
               <div className="h-1.5 w-1.5 rounded-full bg-white/40"></div>
             </div>
-
             <p className="mb-6 max-w-lg text-lg font-medium leading-relaxed text-white">
               "Sistem manajemen ini sangat membantu operasional restoran. Semuanya menjadi lebih cepat, akurat, dan mudah dipantau dari mana saja."
             </p>
-            
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-bold text-white">Admin Utama</p>
                 <p className="text-sm text-white/70">Spill & Bites</p>
               </div>
-              
               <div className="flex gap-4">
                 <span className="cursor-pointer text-white/70 hover:text-white">←</span>
                 <span className="cursor-pointer text-white/70 hover:text-white">→</span>
               </div>
             </div>
-
           </div>
         </div>
       </div>
