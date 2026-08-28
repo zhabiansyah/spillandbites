@@ -1,53 +1,61 @@
 import Link from "next/link";
-import { db } from "@/lib/db"; // Ganti readTable menjadi db
+import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
 export default async function AdminDashboardPage() {
-  const session = getSession();
+  // Added await here if your auth library requires it
+  const session = await getSession(); 
   
-  // Memanggil data langsung ke database PostgreSQL menggunakan Prisma
-  const [complaints, reservations, birthday, articles] = await Promise.all([
-    db.complaint.findMany(),
-    db.reservation.findMany(),
-    db.birthdayBooking.findMany(),
-    db.article.findMany(),
+  // Let PostgreSQL do the counting directly
+  const [
+    totalComplaints,
+    openComplaints,
+    totalReservations,
+    pendingReservations,
+    totalBirthday,
+    pendingBirthday,
+    totalArticles,
+    draftArticles
+  ] = await Promise.all([
+    db.complaint.count(),
+    db.complaint.count({ where: { status: { not: "Selesai" } } }),
+    
+    db.reservation.count(),
+    db.reservation.count({ where: { status: "Menunggu Konfirmasi" } }),
+    
+    db.birthdayBooking.count(),
+    db.birthdayBooking.count({ where: { status: "Menunggu Konfirmasi" } }),
+    
+    db.article.count(),
+    db.article.count({ where: { status: "Draft" } }),
   ]);
-
-  const openComplaints = complaints.filter((c) => c.status !== "Selesai").length;
-  const pendingReservations = reservations.filter(
-    (r) => r.status === "Menunggu Konfirmasi"
-  ).length;
-  const pendingBirthday = birthday.filter(
-    (b) => b.status === "Menunggu Konfirmasi"
-  ).length;
-  const draftArticles = articles.filter((a) => a.status === "Draft").length;
 
   const cards = [
     {
       label: "Komplain Belum Selesai",
       value: openComplaints,
-      total: complaints.length,
+      total: totalComplaints,
       href: "/admin/complaints",
       icon: "📮",
     },
     {
       label: "Reservasi Menunggu",
       value: pendingReservations,
-      total: reservations.length,
+      total: totalReservations,
       href: "/admin/reservations",
       icon: "📅",
     },
     {
       label: "Booking Ulang Tahun Menunggu",
       value: pendingBirthday,
-      total: birthday.length,
+      total: totalBirthday,
       href: "/admin/birthday",
       icon: "🎂",
     },
     {
       label: "Artikel Draft",
       value: draftArticles,
-      total: articles.length,
+      total: totalArticles,
       href: "/admin/articles",
       icon: "📰",
     },
@@ -81,6 +89,7 @@ export default async function AdminDashboardPage() {
         ))}
       </div>
 
+      {/* Quick access section remains unchanged */}
       <div className="mt-10 rounded-2xl border border-black/10 bg-white p-6">
         <h2 className="font-display text-lg font-bold text-orange-600">
           Akses cepat
