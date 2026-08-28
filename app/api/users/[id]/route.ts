@@ -1,29 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readTable, writeTable } from "@/lib/db";
-import type { AppUser } from "../route";
+import { PrismaClient } from "@prisma/client";
 import { getSession } from "@/lib/auth";
+
+// Inisialisasi Prisma Client
+const prisma = new PrismaClient();
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const session = getSession();
+  // 1. Cek Otentikasi (Sesuai dengan kode asli Anda)
+  const session = getSession(); 
   if (!session || session.role !== "superadmin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = await req.json();
-  const users = await readTable<AppUser>("users");
-  const idx = users.findIndex((u) => u.id === params.id);
-  if (idx === -1) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
+  try {
+    const body = await req.json();
 
-  users[idx] = {
-    ...users[idx],
-    role: body.role ?? users[idx].role,
-    status: body.status ?? users[idx].status,
-  };
-  await writeTable("users", users);
-  return NextResponse.json(users[idx]);
+    // 2. Update data ke database menggunakan Prisma
+    const updatedUser = await prisma.user.update({
+      where: { 
+        id: params.id 
+      },
+      data: {
+        ...(body.role && { role: body.role }),
+        ...(body.status && { status: body.status }),
+      },
+    });
+
+    return NextResponse.json(updatedUser);
+  } catch (error) {
+    console.error("Gagal update user:", error);
+    return NextResponse.json(
+      { error: "User tidak ditemukan atau gagal diperbarui" },
+      { status: 404 }
+    );
+  }
 }
